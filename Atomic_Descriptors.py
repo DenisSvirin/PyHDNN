@@ -196,6 +196,6 @@ class SymmetryFunctions(BaseFunctions):
             combined_G1_G2 = np.hstack((G1_functions, G2_functions))
             self.symmetry_functions.extend([np.array(combined_G1_G2)])
         self.symmetry_functions_dataframe = pd.DataFrame(
-            sf_.symmetry_functions,
+            self.symmetry_functions,
             columns=["feature_" + str(i) for i in range((l_g1 + l_g2) * 2)],
         )
