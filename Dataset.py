@@ -1,3 +1,8 @@
+import numpy as np
+import pandas as pd
+from torch.utils.data import Dataset
+import torch
+
 class AtomicDataset(Dataset):
     def __init__(self, data):
         """
@@ -12,7 +17,11 @@ class AtomicDataset(Dataset):
         features = self.data.iloc[item].values[:-2]
         basis_atoms = self.data.iloc[item].values[-2]
         target = self.data.iloc[item].values[-1]
-        return features, target, basis_atoms
+        return (
+            torch.tensor(features.astype(float)),
+            torch.tensor(target),
+            torch.tensor(basis_atoms / 1),
+        )
 
 
 def make_dataframe(structures, basis_atoms, target):
@@ -33,8 +42,11 @@ def make_dataframe(structures, basis_atoms, target):
     combined_df["BasisAtoms"] = ""
     combined_df["Target"] = ""
     for _struct, _basis, _target in zip(structures, basis_atoms, target):
+
         new_df = _struct.copy()
         new_df["BasisAtoms"] = _basis
         new_df["Target"] = _target
+
         combined_df = pd.concat([combined_df, new_df])
+
     return combined_df

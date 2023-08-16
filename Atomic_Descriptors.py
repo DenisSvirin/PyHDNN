@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 class BaseFunctions:
     """
@@ -149,6 +150,7 @@ class SymmetryFunctions(BaseFunctions):
         len_g2_functions=21,
         lattice_constants=[],
         atomic_coordinates=[],
+        no_angles=False,
     ):
         super().__init__(cutoff_R=cutoff_R)
         self.symmetry_functions = []
@@ -157,17 +159,16 @@ class SymmetryFunctions(BaseFunctions):
         self.len_g2_functions = len_g2_functions
         self.lattice_constants = lattice_constants
         self.atomic_coordinates = atomic_coordinates
+        self.no_angles = no_angles
         self.zetas = zetas
         if len(self.zetas) == 0:
             self.zetas = np.random.choice([1, 2, 4, 16], self.len_g2_functions)
 
-
-        assert(
+        assert (
             len(self.zetas) == len_g2_functions
         ), "Custom zeta set should be length equal to len_g2_functions"
 
-
-    def get_SymmetryFunctions(self):
+    def transform_to_SymmetryFunctions(self):
         """
         Creates set of symmetry function for a given
         structure and lattice constant
@@ -178,7 +179,7 @@ class SymmetryFunctions(BaseFunctions):
             N=l_g1
         )
         R_and_n_for_G2 = self.generate_self_centered_eta(N=self.len_g2_functions)
-        for _r in self.lattice_constants:
+        for _r in tqdm(self.lattice_constants, desc="Converted"):
             distances = self.get_distance_dict(
                 atomic_coordinates=self.atomic_coordinates,
                 r_cutoff=self.cutoff_R,
@@ -191,10 +192,15 @@ class SymmetryFunctions(BaseFunctions):
             G2_functions = []
 
             for j, c in enumerate(self.zetas):
-                _G_2 = self._get_G_2(
-                    coordinates=relative_coordinates * _r, c=c, n=R_and_n_for_G2[j][1]
-                )
-                G2_functions.extend(_G_2)
+                if self.no_angles:
+                    G2_functions.extend([0.0, 0.0])
+                else:
+                    _G_2 = self._get_G_2(
+                        coordinates=self.atomic_coordinates * _r,
+                        c=c,
+                        n=R_and_n_for_G2[j][1],
+                    )
+                    G2_functions.extend(_G_2)
 
             combined_G1_G2 = np.hstack((G1_functions, G2_functions))
             self.symmetry_functions.extend([np.array(combined_G1_G2)])
