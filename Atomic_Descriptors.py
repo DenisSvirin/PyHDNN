@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 class BaseFunctions:
     """
     Base class for creating atomic description
@@ -158,11 +161,11 @@ class SymmetryFunctions(BaseFunctions):
         if len(self.zetas) == 0:
             self.zetas = np.random.choice([1, 2, 4, 16], self.len_g2_functions)
 
-        try:
-            assert len(self.zetas) == len_g2_functions
-        except:
-            print("Custom zeta set should be length equal to len_g2_functions")
-            print(len(self.zetas), "!=", len_g2_functions)
+
+        assert(
+            len(self.zetas) == len_g2_functions
+        ), "Custom zeta set should be length equal to len_g2_functions"
+
 
     def get_SymmetryFunctions(self):
         """
