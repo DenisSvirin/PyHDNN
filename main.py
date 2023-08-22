@@ -28,7 +28,7 @@ def train_epoch(model, optimizer, criterion):
         train_loss_log.append(loss.item())
     return train_loss_log
 
-
+@torch.no_grad()
 def test_epoch(model, criterion):
     test_loss_log = []
 
